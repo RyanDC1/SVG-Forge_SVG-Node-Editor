@@ -1,0 +1,13 @@
+@use 'variables';
+
+:root {
+    --main-accent-color: #{variables.$main-accent-color-dark};
+    --grid-bg: radial-gradient(#ffffff24 1px, #ffffff08 1px);
+    --svg-viewer-header-bg: #ffffff0a;
+}
+
+:root[data-theme="LIGHT"] {
+    --main-accent-color: #{variables.$main-accent-color-light};
+    --grid-bg: radial-gradient(rgb(0 0 0 / 19%) 1px, rgb(175 175 175 / 8%) 1px);
+    --svg-viewer-header-bg: #0000000a;
+}

@@ -1,0 +1,268 @@
+@use 'variables';
+@use 'theme';
+@use 'mixins';
+@use "sass:color";
+
+body {
+    margin: 0px;
+    overflow: hidden;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--main-accent-color);
+    border-radius: 8px;
+    border: 1px solid var(--main-accent-color);
+}
+
+.monaco-error-glyph-margin {
+	background: variables.$color-danger !important;
+}
+
+.monaco-error-glyph-content {
+	background: rgba(238, 87, 87, 0.164);
+}
+
+
+.main-header {
+    @include mixins.zIndex-200;
+    background: variables.$main-accent-color-dark;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 14px;
+    height: variables.$header-height;
+
+    .main-logo {
+        width: 50px;
+    }
+
+    .main-header-title {
+        color: variables.$primary-color !important;
+        font-weight: 700;
+        margin: 0;
+    }
+}
+
+.main-layout-content {
+    height: calc(100vh - variables.$header-height);
+}
+
+.editor-layout {
+    .ant-layout-content {
+        height: calc(100vh - variables.$header-height);
+
+        .svg-viewer-container {
+            overflow: hidden;
+        }
+
+        .viewer-layout {
+            .ant-upload-drag {
+                border-radius: 0px;
+            }
+
+            .ant-upload-drag {
+                @include mixins.upload-dragger-transition;
+
+                &:hover {
+                    @include mixins.upload-dragger-active-background;
+                }
+            }
+
+            .ant-upload-drag-hover {
+                @include mixins.upload-dragger-transition;
+                @include mixins.upload-dragger-active-background;
+            }
+
+            .ant-splitter-bar {
+                z-index: 400;
+            }
+        }
+    }
+
+    .ant-layout-sider {
+        @include mixins.zIndex-200;
+        background: unset;
+        height: calc(100vh - variables.$header-height);
+        max-width: 220px;
+        min-width: 220px;
+        padding: 8px;
+        overflow: auto;
+        border-width: 0px 1px 1px 1px;
+        border-style: solid;
+        border-color: var(--main-accent-color);
+        position: relative;
+        background: inherit;
+    }
+}
+
+.svg-viewport {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    @include mixins.dot-grid;
+
+    .svg-viewer-header {
+        position: sticky;
+        top: 0px;
+        width: 100%;
+        background: var(--svg-viewer-header-bg);
+        padding: 4px;
+        backdrop-filter: blur(1px);
+        @include mixins.zIndex-200;
+
+        .header-title {
+            user-select: none;
+
+            .ant-typography {
+                font-weight: 600;
+            }
+        }
+    }
+
+    .svg-viewer-layout {
+        height: 100%;
+    }
+
+    .svg-viewer-content {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .svg-control {
+        height: 100%;
+
+        .svg-scale-notification {
+            transform: translate(-50%, -190%) !important;
+        }
+
+        .svg-scale-notification-notice-content {
+            border-radius: 24px;
+        }
+
+
+
+        .svg-path-overlay {
+            @include mixins.node-overlay;
+            border: 2px solid variables.$overlay-border-color;
+            transition-delay: 200ms
+        }
+
+        .selected-path-overlay {
+            @include mixins.node-overlay;
+            border: 4px solid variables.$selected-overlay-border-color;
+        }
+
+        .svg-path-overlay-tooltip {
+            user-select: none;
+            .ant-tooltip-inner {
+                background: variables.$overlay-tooltip-color;
+                opacity: 0.7;
+            }
+        }
+    }
+}
+
+.ant-upload-wrapper {
+    .ant-upload-text {
+        user-select: none;
+    }
+}
+
+.html-viewer-container {
+    @include mixins.zIndex-200;
+    height: 100%;
+    overflow: hidden;
+}
+
+.monaco-editor-footer {
+    position: absolute;
+    bottom: 8px;
+    right: 230px;
+
+    .ant-btn {
+        bottom: 8px;
+        opacity: 0.6;
+        transition: all 0.3s ease-in-out;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+.xml-error-view-modal {
+    .xml-error-view {
+        position: relative;
+        height: 200px;
+    }
+
+    .xml-error-modal-title {
+        font-size: 1.7em;
+        color: variables.$color-danger;
+    }
+}
+
+.svg-hierarchy {
+    background: transparent;
+
+    .ant-tree-treenode {
+        margin-bottom: 12px;
+
+        .ant-tree-checkbox-inner {
+            translate: 0 -8px;
+        }
+
+        .ant-tree-node-content-wrapper {
+            display: flex;
+            padding-inline-start: 0px;
+
+            .ant-tree-iconEle {
+                color: variables.$main-icon-color;
+            }
+        }
+    }
+
+    .node-hierarchy-title {
+        user-select: none;
+        width: 100%;
+        height: 42px;
+        
+        .highlighted-text {
+            color: variables.$primary-color;
+        }
+
+        .title {
+            opacity: 0.8;
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        .description {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 12px;
+            position: absolute;
+            top: 21px;
+            max-width: 84px;
+        }
+    }
+}
+
+.ant-search {
+    .ant-input-prefix {
+        opacity: 0.3;
+        margin-inline-end: 6px;
+    }
+}

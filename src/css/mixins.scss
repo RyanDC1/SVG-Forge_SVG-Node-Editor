@@ -1,0 +1,26 @@
+@use 'variables';
+
+@mixin dot-grid {
+    background-image: var(--grid-bg);
+    background-size: 24px 24px;
+}
+
+@mixin upload-dragger-transition {
+    transition: all 0.3s ease-in-out;
+}
+
+@mixin upload-dragger-active-background {
+    background: rgba(variables.$primary-color, 0.08);
+}
+
+@mixin zIndex-200 {
+    z-index: 200;
+}
+
+@mixin node-overlay {
+    z-index: 2;
+    position: absolute;
+    pointer-events: none;
+    transition: all 0.3s ease-in-out;
+    opacity: 0;
+}
