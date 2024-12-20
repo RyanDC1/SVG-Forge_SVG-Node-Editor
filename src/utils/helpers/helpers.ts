@@ -1,4 +1,4 @@
-import { SVGDataItem, SVGFlatMap, SVGNodeTypes } from "@/types"
+import { NodeAttributePayload, SVGDataItem, SVGFlatMap, SVGNodeTypes } from "@/types"
 import { v4 as uuidv4 } from 'uuid'
 import { get, isEmpty, startCase } from "lodash"
 import { BezierCurveOutlined, CircleDashedOutlined, GroupOutlined, LineOutlined, PathOutlined, PolygonOutlined, PolylineOutlined, RectangleOutlined, SVGOutlined } from "@/components/icons"
@@ -71,18 +71,32 @@ export function uuid() {
     return uuidv4()
 }
 
-export function mapSVGElements(svgString: string) {
+interface MapSVGElementsOptions {
+    /**
+     * pass custom properties to be set on the SVG
+     */
+    customProperties?: NodeAttributePayload
+}
+
+export function mapSVGElements(svgString: string, options: MapSVGElementsOptions = {}) {
     const flatMap: SVGFlatMap = {}
+    const { customProperties } = options
 
     try {
-        const parser = new DOMParser()
-        const node = parser.parseFromString(svgString, 'image/svg+xml')
+        const node = parseElementFromString(svgString, 'image/svg+xml')
         const svgElement = node.documentElement
 
         const assignedIds: string[] = []
 
-        const getHierarchy = (elements: Element[], path: string[] = []): SVGDataItem[] => {
+        const mapHierarchy = (elements: Element[], path: string[] = []): SVGDataItem[] => {
             return elements.map((element) => {
+
+                if(customProperties?.ids && customProperties.ids.includes(element.id)) {
+                    // Add custom properties and update svg element while mapping
+                    for(const [name, value] of Object.entries(customProperties.properties)) {
+                        element.setAttribute(name, value)
+                    }
+                }
 
                 let id = element.id?.trim()
 
@@ -97,7 +111,7 @@ export function mapSVGElements(svgString: string) {
                     id,
                     path,
                     name: translateHTMLTag(element.tagName),
-                    children: element.hasChildNodes() ? getHierarchy(Array.from(element.children), [...path, id]) : []
+                    children: element.hasChildNodes() ? mapHierarchy(Array.from(element.children), [...path, id]) : []
                 }
 
                 flatMap[id] = item
@@ -105,7 +119,7 @@ export function mapSVGElements(svgString: string) {
             })
         }
 
-        const map = getHierarchy([svgElement], [])
+        const map = mapHierarchy([svgElement], [])
 
         return {
             map,
@@ -120,4 +134,24 @@ export function mapSVGElements(svgString: string) {
             flatMap: {}
         }
     }
+}
+
+/**
+ * returns the new svgString with the deleted node
+ */
+export function deleteSVGNode(svgString: string, ids: string[]) {
+    const svg = parseElementFromString(svgString, 'image/svg+xml')
+    const svgElement = svg.documentElement
+
+    const htmlDocument = document.implementation.createHTMLDocument()
+    htmlDocument.body.append(svgElement)
+    
+    ids.forEach(id => {
+        const node = htmlDocument.getElementById(id)
+        if(node) {
+            node.remove()
+        }
+    })
+
+    return htmlDocument.body.innerHTML
 }

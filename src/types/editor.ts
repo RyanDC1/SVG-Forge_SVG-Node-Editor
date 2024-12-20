@@ -43,3 +43,8 @@ export interface SVGDataItem {
 }
 
 export type SVGFlatMap = Record<string, SVGDataItem>
+
+export interface NodeAttributePayload {
+    ids: string[],
+    properties: React.HTMLAttributes<never>
+}

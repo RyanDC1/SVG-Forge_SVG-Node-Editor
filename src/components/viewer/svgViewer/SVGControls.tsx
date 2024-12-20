@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react"
 import { message as antMessage, Tooltip } from 'antd'
-import { clamp, throttle } from "lodash"
+import { clamp, debounce, throttle } from "lodash"
 import { useEditorState, useEditorStateReducer, useResizeObserver } from "@/utils/hooks"
 import { translateHTMLTag } from "@/utils/helpers"
 
@@ -49,6 +49,9 @@ export default function SVGControls(props: Props) {
     const selectedNodesRef = useRef<string[]>([])
 
     const throttledScale = useCallback(throttle(scaleSVGOnScroll, 60), [])
+    const debouncedUpdateTooltip = useCallback(debounce((title) => {
+        overlayRefTooltip.current.innerText = translateHTMLTag(title)
+    }, 300), [])
 
     const viewPortSize = useResizeObserver(controlRef)
 
@@ -237,7 +240,8 @@ export default function SVGControls(props: Props) {
         }
 
         overlayRef.current = createOverlayProperties(overlayRef.current, target)
-        overlayRefTooltip.current.innerText = translateHTMLTag(target.nodeName)
+
+        debouncedUpdateTooltip(target.nodeName)
     }
 
     function hideOverlay() {
@@ -258,6 +262,7 @@ export default function SVGControls(props: Props) {
         if (event.ctrlKey) {
             // multi select
             if (selectedNodesRef.current.includes(target.id)) {
+                // clear selection
                 setSelectedNodes(selectedNodesRef.current.filter(id => id !== target.id))
             }
             else {
@@ -265,7 +270,8 @@ export default function SVGControls(props: Props) {
             }
         }
         else {
-            if (selectedNodesRef.current.includes(target.id)) {
+            if (selectedNodesRef.current.includes(target.id) && selectedNodesRef.current.length === 1) {
+                // clear selection
                 setSelectedNodes([])
             }
             else {

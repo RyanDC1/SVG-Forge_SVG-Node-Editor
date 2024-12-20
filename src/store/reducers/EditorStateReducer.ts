@@ -1,6 +1,6 @@
 import { PayloadAction, SliceCaseReducers, SliceSelectors, createSlice } from "@reduxjs/toolkit";
-import { EditorConfig } from "@/types";
-import { mapSVGElements } from "@/utils/helpers";
+import { EditorConfig, NodeAttributePayload } from "@/types";
+import { deleteSVGNode, mapSVGElements } from "@/utils/helpers";
 
 
 export const initialState: EditorConfig = {
@@ -43,15 +43,50 @@ const EditorConfigReducer = createSlice<EditorConfig, SliceCaseReducers<EditorCo
                 selectedNodes: action.payload
             }
         },
+        setNodeAttributeReducer: (state, action: PayloadAction<NodeAttributePayload>) => {
+
+            const { map, flatMap, svg } = mapSVGElements(
+                state.svg!,
+                {
+                    customProperties: action.payload
+                }
+            )
+
+            return {
+                ...state,
+                svgData: {
+                    map,
+                    flatMap
+                },
+                svg
+            }
+        },
+        deleteNodeReducer: (state, action: PayloadAction<string[]>) => {
+
+            const svgString = deleteSVGNode(state.svg!, action.payload)
+
+            const { map, flatMap, svg } = mapSVGElements(svgString)
+
+            return {
+                ...state,
+                svgData: {
+                    map,
+                    flatMap
+                },
+                svg
+            }
+        },
         clearEditorStateReducer: () => initialState
     }
 })
 
-export const { 
+export const {
     setEditorStateReducer,
     mapSVGDataReducer,
     setPreviewNodeReducer,
     setSelectedNodesReducer,
+    setNodeAttributeReducer,
+    deleteNodeReducer,
     clearEditorStateReducer,
 } = EditorConfigReducer.actions
 export default EditorConfigReducer.reducer
