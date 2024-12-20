@@ -209,6 +209,7 @@ export default function SVGControls(props: Props) {
 
             svgContainerRef.current.style.transform = `translate(${panOffset.current.clientX}px, ${panOffset.current.clientY}px)`;
 
+            hideOverlay()
             updateSelectedOverlay(selectedNodesRef.current)
         }
     }
