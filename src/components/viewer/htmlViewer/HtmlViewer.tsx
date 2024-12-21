@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { Button, ConfigProvider, Flex, Modal, Space, Spin, theme as antTheme } from "antd";
 import { CloseCircleFilled, CloseOutlined, LoadingOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 import Editor from '@monaco-editor/react';
@@ -14,7 +14,12 @@ interface Error {
     code: string
 }
 
-export default function HtmlViewer() {
+interface HtmlViewerRef {
+    undo: () => void,
+    redo: () => void
+}
+
+const HtmlViewer = forwardRef<HtmlViewerRef, unknown>((_props, ref) => {
 
     const svg = useEditorState(state => state.editorStateReducer.svg)
     const { setEditorState } = useEditorStateReducer()
@@ -27,8 +32,16 @@ export default function HtmlViewer() {
     const [showError, setShowError] = useState(false)
     const [error, setError] = useState<Error | undefined>()
 
+    const editorRef = useRef<editor.IStandaloneCodeEditor>(null!)
     const errorContentRef = useRef<HTMLElement>(null!)
     const xmlErrorCodeRef = useRef<editor.IStandaloneCodeEditor>(null!)
+
+    useImperativeHandle(ref, () => (
+        {
+            undo: () => editorRef.current.trigger('keyboard', 'undo', null),
+            redo: () => editorRef.current.trigger('keyboard', 'redo', null)
+        }
+    ), [])
 
     return (
         <div className="html-viewer-container">
@@ -52,6 +65,7 @@ export default function HtmlViewer() {
                     validateAndSave(svgString!)
                 }}
                 onMount={(editor) => {
+                    editorRef.current = editor
                     onEditorLoad(editor)
                 }}
             />
@@ -219,4 +233,6 @@ export default function HtmlViewer() {
                 })
             })
     }
-}
+})
+
+export default HtmlViewer

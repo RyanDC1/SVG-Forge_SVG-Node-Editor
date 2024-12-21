@@ -148,10 +148,35 @@ export function deleteSVGNode(svgString: string, ids: string[]) {
     
     ids.forEach(id => {
         const node = htmlDocument.getElementById(id)
-        if(node) {
+        if(node && node.tagName.toLowerCase() !== 'svg') {
             node.remove()
         }
     })
 
     return htmlDocument.body.innerHTML
+}
+
+/**
+ * returns a string interpretation of key combinations with ctrl and shift key
+ * 
+ * order: ctrl > alt > shift > key
+ * 
+ * @example 'ctrl + shift + z'
+ */
+export function getKeyCombination(event: KeyboardEvent) {
+    const combination: string[] = []
+
+    if(event.ctrlKey) {
+        combination.push('ctrl')
+    }
+    if(event.altKey) {
+        combination.push('alt')
+    }
+    if(event.shiftKey) {
+        combination.push('shift')
+    }
+
+    combination.push(event.key.toLowerCase())
+
+    return combination.join(' + ')
 }

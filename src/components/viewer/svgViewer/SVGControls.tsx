@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef } from "react"
 import { message as antMessage, Tooltip } from 'antd'
-import { clamp, debounce, throttle } from "lodash"
+import { clamp, debounce, get, throttle } from "lodash"
 import { useEditorState, useEditorStateReducer, useResizeObserver } from "@/utils/hooks"
-import { translateHTMLTag } from "@/utils/helpers"
+import { getKeyCombination, translateHTMLTag } from "@/utils/helpers"
+import { useViewerContext } from "@/contexts"
 
 interface Props {
     children: React.ReactNode,
@@ -18,6 +19,12 @@ const PAN_SPEED_MULTIPLIER = 2
 let SCALE_NOTIFICATION_TIMEOUT: NodeJS.Timeout | undefined = undefined
 const SCALE_NOTIFICATION_KEY = 'SVG_SCALE_NOTIFICATION'
 
+enum KeyAssignments {
+    DELETE = 'delete',
+    UNDO = 'ctrl + z',
+    REDO = 'ctrl + shift + z'
+}
+
 export default function SVGControls(props: Props) {
 
     const { children, svgContainerRef } = props
@@ -26,7 +33,9 @@ export default function SVGControls(props: Props) {
     const previewNode = useEditorState(state => state.editorStateReducer.previewNode)
     const selectedNodes = useEditorState(state => state.editorStateReducer.selectedNodes)
 
-    const { setSelectedNodes } = useEditorStateReducer()
+    const { setSelectedNodes, deleteNode } = useEditorStateReducer()
+
+    const { undo, redo } = useViewerContext()
 
     const [message, messageContext] = antMessage.useMessage({
         getContainer: () => controlRef.current,
@@ -47,8 +56,10 @@ export default function SVGControls(props: Props) {
     const overlayRefTooltip = useRef<HTMLSpanElement>(null!)
     const selectedOverlayIdsRef = useRef<string[]>([])
     const selectedNodesRef = useRef<string[]>([])
+    const isKeyEventsActiveRef = useRef(false)
 
     const throttledScale = useCallback(throttle(scaleSVGOnScroll, 60), [])
+    const debouncedOnKeyUp = useCallback(debounce(onKeyUp, 200, { leading: true, trailing: false }), [])
     const debouncedUpdateTooltip = useCallback(debounce((title) => {
         overlayRefTooltip.current.innerText = translateHTMLTag(title)
     }, 300), [])
@@ -62,12 +73,16 @@ export default function SVGControls(props: Props) {
             svgContainerRef.current.addEventListener('mouseover', onMouseOver)
             svgContainerRef.current.addEventListener('mouseleave', hideOverlay)
             svgContainerRef.current.addEventListener('pointerup', setSelectedItems)
+
+            document.addEventListener('keyup', debouncedOnKeyUp)
         }
 
         return () => {
             svgContainerRef.current?.removeEventListener('mouseover', onMouseOver)
             svgContainerRef.current?.removeEventListener('mouseleave', hideOverlay)
             svgContainerRef.current?.removeEventListener('pointerup', setSelectedItems)
+
+            document.removeEventListener('keyup', debouncedOnKeyUp)
         }
     }, [isSvgLoaded])
 
@@ -94,6 +109,7 @@ export default function SVGControls(props: Props) {
 
     return (
         <div
+            tabIndex={0}
             ref={controlRef}
             className='svg-control'
             onWheel={throttledScale}
@@ -101,6 +117,15 @@ export default function SVGControls(props: Props) {
             onPointerUp={onPanStop}
             onPointerLeave={onPanStop}
             onPointerMove={onPan}
+            onClick={() => {
+                controlRef.current.focus()
+            }}
+            onFocus={() => {
+                isKeyEventsActiveRef.current = true
+            }}
+            onBlur={() => {
+                isKeyEventsActiveRef.current = false
+            }}
         >
             <Tooltip
                 rootClassName="svg-path-overlay-tooltip"
@@ -308,5 +333,33 @@ export default function SVGControls(props: Props) {
                 selectedOverlayIdsRef.current.push(overlayElement.id)
             }
         })
+    }
+
+    function onKeyUp(event: KeyboardEvent) {
+        if(isKeyEventsActiveRef.current) {
+            const actions = {
+                [KeyAssignments.DELETE]: () => {
+                    if(selectedNodesRef.current.length > 0) {
+                        deleteNode(selectedNodesRef.current)
+                        setSelectedNodes([])
+                        controlRef.current.focus()
+                    }
+                },
+                [KeyAssignments.UNDO]: () => {
+                    undo()
+                    controlRef.current.focus()
+                },
+                [KeyAssignments.REDO]: () => {
+                    redo()
+                    controlRef.current.focus()
+                },
+                default: () => {
+                    // no op
+                }
+            }
+
+            const keyCombination = getKeyCombination(event)
+            get(actions, keyCombination, actions.default)()
+        }
     }
 }

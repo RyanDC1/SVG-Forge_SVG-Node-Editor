@@ -50,7 +50,7 @@ export default function IdPanel(props: InputProps) {
                 }
             })
     
-            debouncedUpdateSelectedNodes(selectedNodes.filter(s => s !== oldValue))
+            debouncedUpdateSelectedNodes([...selectedNodes.filter(s => s !== oldValue), value])
         }
     }
 }

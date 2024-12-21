@@ -110,8 +110,7 @@ export default function NodeHierarchy(props: Props) {
                     // allow time for nodes to expand
                     treeRef.current.scrollTo({ 
                         key: lastCheckedId,
-                        align: 'top',
-                        offset: 24
+                        align: 'top'
                     })
                 }, 60);
             }
