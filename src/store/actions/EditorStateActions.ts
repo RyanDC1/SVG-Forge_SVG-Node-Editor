@@ -9,6 +9,16 @@ import {
     deleteNodeReducer,
 } from "../reducers";
 import { StoreDispatchType } from "../store";
+import { Dispatch, ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
+
+type DispatchAction<T> = {
+    payload: T;
+    type: `${string}/${string}`;
+}
+
+type ThunkAction = ThunkDispatch<{ editorStateReducer: EditorConfig; }, undefined, DispatchAction<UnknownAction> & Dispatch<DispatchAction<UnknownAction>>>
+
+const createDispatchAction = <T>(reducerAction: (data: T) => StoreDispatchType) => (data: T) => (dispatch: StoreDispatchType) => dispatch(reducerAction(data));
 
 export const setEditorState = (data: Partial<EditorConfig>) => (dispatch: StoreDispatchType) => {
     const { svg, ...rest } = data
@@ -19,12 +29,12 @@ export const setEditorState = (data: Partial<EditorConfig>) => (dispatch: StoreD
     return dispatch(setEditorStateReducer(rest))
 }
 
-export const setPreviewNode = (data: EditorConfig['previewNode']) => (dispatch: StoreDispatchType) => dispatch(setPreviewNodeReducer(data))
+export const setPreviewNode = createDispatchAction<EditorConfig['previewNode']>(setPreviewNodeReducer as ThunkAction)
 
-export const setSelectedNodes = (data: EditorConfig['selectedNodes']) => (dispatch: StoreDispatchType) => dispatch(setSelectedNodesReducer(data))
+export const setSelectedNodes = createDispatchAction<EditorConfig['selectedNodes']>(setSelectedNodesReducer as ThunkAction)
 
-export const setNodeAttribute = (data: NodeAttributePayload) => (dispatch: StoreDispatchType) => dispatch(setNodeAttributeReducer(data))
+export const setNodeAttribute = createDispatchAction<NodeAttributePayload>(setNodeAttributeReducer as ThunkAction)
 
-export const deleteNode = (ids: string[]) => (dispatch: StoreDispatchType) => dispatch(deleteNodeReducer(ids))
+export const deleteNode = createDispatchAction<string[]>(deleteNodeReducer as ThunkAction)
 
-export const resetEditorState = () => (dispatch: StoreDispatchType) => dispatch(clearEditorStateReducer(undefined))
+export const resetEditorState = createDispatchAction<never>(clearEditorStateReducer as ThunkAction)
