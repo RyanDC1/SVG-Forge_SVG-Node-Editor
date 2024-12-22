@@ -1,7 +1,18 @@
-import { NodeAttributePayload, SVGDataItem, SVGFlatMap, SVGNodeTypes } from "@/types"
+import { NodeAttributePayload, SVGDataItem, SVGFlatMap, SVGNodeTypes, SVGTheme } from "@/types"
 import { v4 as uuidv4 } from 'uuid'
 import { get, isEmpty, startCase } from "lodash"
-import { BezierCurveOutlined, CircleDashedOutlined, GroupOutlined, LineOutlined, PathOutlined, PolygonOutlined, PolylineOutlined, RectangleOutlined, SVGOutlined } from "@/components/icons"
+import Color from 'color'
+import { 
+    BezierCurveOutlined, 
+    CircleDashedOutlined, 
+    GroupOutlined, 
+    LineOutlined, 
+    PathOutlined, 
+    PolygonOutlined, 
+    PolylineOutlined, 
+    RectangleOutlined, 
+    SVGOutlined 
+} from "@/components/icons"
 
 
 function parseElementFromString(data: string, type: DOMParserSupportedType) {
@@ -71,6 +82,16 @@ export function uuid() {
     return uuidv4()
 }
 
+/**
+ * Modifies element color/fill property from styles and normalizes it to hexadecimal value
+ */
+function NormalizeSVGNodeColor(element: HTMLElement, color: string, type: 'fill' | 'stroke') {
+    const normalizedColor = Color(color).hexa()
+    element?.style?.removeProperty(type)
+    element.setAttribute(type, normalizedColor)
+    return normalizedColor.toUpperCase()
+}
+
 interface MapSVGElementsOptions {
     /**
      * pass custom properties to be set on the SVG
@@ -80,6 +101,10 @@ interface MapSVGElementsOptions {
 
 export function mapSVGElements(svgString: string, options: MapSVGElementsOptions = {}) {
     const flatMap: SVGFlatMap = {}
+    const theme: SVGTheme = {
+        fill: [],
+        stroke: []
+    }
     const { customProperties } = options
 
     try {
@@ -98,6 +123,7 @@ export function mapSVGElements(svgString: string, options: MapSVGElementsOptions
                     }
                 }
 
+                // #region Id Assignment
                 let id = element.id?.trim()
 
                 if (isEmpty(id) || assignedIds.includes(id)) {
@@ -106,6 +132,44 @@ export function mapSVGElements(svgString: string, options: MapSVGElementsOptions
 
                 element.setAttribute('id', id)
                 assignedIds.push(id)
+                // #endregion Id Assignment
+
+
+                // #region color normalization
+
+                // fill colors
+                const color = (element as HTMLElement)?.style?.fill || element.getAttribute('fill')
+                if(color && color.toLowerCase() !== 'none') {
+                    try {
+                        const normalizedColor = NormalizeSVGNodeColor(element as HTMLElement, color, 'fill')
+                        if(!theme.fill.includes(normalizedColor)) {
+                            theme.fill.push(normalizedColor)
+                        }
+                    }
+                    catch(error) {
+                        console.log(error)
+                    }
+                }
+
+                // stroke colors
+                const strokeColor = (element as HTMLElement)?.style?.stroke || element.getAttribute('stroke')
+                if(strokeColor && strokeColor.toLowerCase() !== 'none') {
+                    try {
+                        const normalizedColor = NormalizeSVGNodeColor(element as HTMLElement, strokeColor, 'stroke')
+                        if(!theme.stroke.includes(normalizedColor)) {
+                            theme.stroke.push(normalizedColor)
+                        }
+                    }
+                    catch(error) {
+                        console.log(error)
+                    }
+                }
+
+                // #endregion color normalization
+
+                if(isEmpty(element.getAttribute('style'))) {
+                    element.removeAttribute('style')
+                }
 
                 const item = {
                     id,
@@ -124,6 +188,7 @@ export function mapSVGElements(svgString: string, options: MapSVGElementsOptions
         return {
             map,
             flatMap,
+            theme,
             svg: svgElement.outerHTML
         }
 
@@ -131,7 +196,8 @@ export function mapSVGElements(svgString: string, options: MapSVGElementsOptions
         console.error(error)
         return {
             map: [],
-            flatMap: {}
+            flatMap: {},
+            theme
         }
     }
 }

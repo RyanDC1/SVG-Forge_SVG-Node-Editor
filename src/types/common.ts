@@ -11,5 +11,6 @@ export enum SVGNodeTypes {
     POLYGON = 'polygon',
     LINE = 'line',
     RECT = 'rect',
-    CIRCLE = 'circle'
+    CIRCLE = 'circle',
+    ELLIPSE = 'ellipse'
 }

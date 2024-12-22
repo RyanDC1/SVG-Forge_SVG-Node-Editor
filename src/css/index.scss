@@ -274,3 +274,18 @@ body {
         width: 100%;
     }
 }
+
+.theme-editor {
+    .ant-space {
+        width: 100%;
+    }
+    
+    .ant-color-picker-trigger {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .ant-color-picker-color-block {
+        width: 50px;
+    }
+}

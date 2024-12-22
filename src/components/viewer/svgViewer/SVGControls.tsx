@@ -335,6 +335,13 @@ export default function SVGControls(props: Props) {
         })
     }
 
+    function focusControlContainer() {
+        setTimeout(() => {
+            // allow time for svg to re-render
+            controlRef.current.focus()
+        }, 60);
+    }
+
     function onKeyUp(event: KeyboardEvent) {
         if(isKeyEventsActiveRef.current) {
             const actions = {
@@ -342,16 +349,16 @@ export default function SVGControls(props: Props) {
                     if(selectedNodesRef.current.length > 0) {
                         deleteNode(selectedNodesRef.current)
                         setSelectedNodes([])
-                        controlRef.current.focus()
+                        focusControlContainer()
                     }
                 },
                 [KeyAssignments.UNDO]: () => {
                     undo()
-                    controlRef.current.focus()
+                    focusControlContainer()
                 },
                 [KeyAssignments.REDO]: () => {
                     redo()
-                    controlRef.current.focus()
+                    focusControlContainer()
                 },
                 default: () => {
                     // no op

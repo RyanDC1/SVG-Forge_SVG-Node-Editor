@@ -143,7 +143,6 @@ export default function NodeHierarchy(props: Props) {
                 checkable
                 showIcon
                 switcherIcon={<DownOutlined />}
-                checkStrictly
                 titleRender={(node) => (
                     <NodeHierarchyTitle
                         key={node.key}
@@ -162,10 +161,9 @@ export default function NodeHierarchy(props: Props) {
                         setExpandedKeys(keys => keys.filter(key => key != info.node.key))
                     }
                 }}
-                onCheck={(checkedKeys) => {
-                    const keys = (checkedKeys as { checked: string[]; halfChecked: string[]; })?.checked
-                    setSelectedNodes(keys)
-                    locallyCheckedKeysRef.current = keys
+                onCheck={(keys) => {
+                    setSelectedNodes(keys as string[])
+                    locallyCheckedKeysRef.current = keys as string[]
                 }}
                 onMouseEnter={(info) => {
                     setPreviewNode(info.node.key as string)

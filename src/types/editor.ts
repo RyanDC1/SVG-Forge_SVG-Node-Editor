@@ -17,7 +17,8 @@ export interface EditorConfig {
      */
     svgData?: {
         map: SVGDataItem[],
-        flatMap: SVGFlatMap
+        flatMap: SVGFlatMap,
+        theme: SVGTheme
     },
     /**
      * set the node on which an overlay is to be displayed
@@ -43,6 +44,11 @@ export interface SVGDataItem {
 }
 
 export type SVGFlatMap = Record<string, SVGDataItem>
+
+export interface SVGTheme {
+    fill: string[],
+    stroke: string[]
+}
 
 export interface NodeAttributePayload {
     ids: string[],

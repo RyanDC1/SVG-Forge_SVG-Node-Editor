@@ -20,13 +20,14 @@ const EditorConfigReducer = createSlice<EditorConfig, SliceCaseReducers<EditorCo
             }
         },
         mapSVGDataReducer: (state, action: PayloadAction<EditorConfig['svg']>) => {
-            const { map, flatMap, svg } = mapSVGElements(action.payload!)
+            const { map, flatMap, svg, theme } = mapSVGElements(action.payload!)
 
             return {
                 ...state,
                 svgData: {
                     map,
-                    flatMap
+                    flatMap,
+                    theme
                 },
                 svg
             }
@@ -45,7 +46,7 @@ const EditorConfigReducer = createSlice<EditorConfig, SliceCaseReducers<EditorCo
         },
         setNodeAttributeReducer: (state, action: PayloadAction<NodeAttributePayload>) => {
 
-            const { map, flatMap, svg } = mapSVGElements(
+            const { map, flatMap, svg, theme } = mapSVGElements(
                 state.svg!,
                 {
                     customProperties: action.payload
@@ -56,7 +57,8 @@ const EditorConfigReducer = createSlice<EditorConfig, SliceCaseReducers<EditorCo
                 ...state,
                 svgData: {
                     map,
-                    flatMap
+                    flatMap,
+                    theme
                 },
                 svg
             }
@@ -65,13 +67,14 @@ const EditorConfigReducer = createSlice<EditorConfig, SliceCaseReducers<EditorCo
 
             const svgString = deleteSVGNode(state.svg!, action.payload)
 
-            const { map, flatMap, svg } = mapSVGElements(svgString)
+            const { map, flatMap, svg, theme } = mapSVGElements(svgString)
 
             return {
                 ...state,
                 svgData: {
                     map,
-                    flatMap
+                    flatMap,
+                    theme
                 },
                 svg
             }

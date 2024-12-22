@@ -1,9 +1,10 @@
-import { Space, Typography } from 'antd'
+import { Divider, Space, Typography } from 'antd'
 import { filter, isEmpty } from 'lodash'
 import { useEditorState } from '@/utils/hooks'
 import {
   ActionPanel,
-  IdPanel
+  IdPanel,
+  ThemeEditorPanel
 } from '@/components/propertiesPanel/panels'
 import { useMemo } from 'react'
 
@@ -35,6 +36,8 @@ export default function PropertiesPanel() {
     <Space
       direction='vertical'
       className='properties-panel'
+      split={<Divider />}
+      size={0}
     >
       <Typography.Text strong>
         <Space size={4}>
@@ -43,23 +46,25 @@ export default function PropertiesPanel() {
         </Space>
       </Typography.Text>
 
-      {
-        !isEmpty(selectedNodes) &&
-        <>
-          {
-            selectedItem &&
-            <IdPanel
-              defaultValue={selectedItem.id}
-              key={selectedItem.id}
-            />
-          }
+      <>
+        {
+          selectedItem && !isEmpty(selectedNodes) &&
+          <IdPanel
+            defaultValue={selectedItem.id}
+            key={selectedItem.id}
+          />
+        }
 
-          {
-            selectedItem?.name !== 'SVG' &&
-            <ActionPanel />
-          }
-        </>
-      }
+        {
+          (selectedItem?.name === 'SVG' || isEmpty(selectedNodes)) &&
+          <ThemeEditorPanel />
+        }
+
+        {
+          selectedItem?.name !== 'SVG' && !isEmpty(selectedNodes) &&
+          <ActionPanel />
+        }
+      </>
     </Space>
   )
 }
