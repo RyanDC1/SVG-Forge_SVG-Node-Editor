@@ -40,7 +40,13 @@ export interface SVGDataItem {
      * ids of each item of path traversed from root node
      */
     path: string[]
-    children: SVGDataItem[]
+    children: SVGDataItem[],
+    properties: SVGDataItemProperties
+}
+
+interface SVGDataItemProperties {
+    fill?: string | null,
+    stroke?: string | null
 }
 
 export type SVGFlatMap = Record<string, SVGDataItem>
@@ -52,5 +58,5 @@ export interface SVGTheme {
 
 export interface NodeAttributePayload {
     ids: string[],
-    properties: React.HTMLAttributes<never>
+    properties: React.HTMLAttributes<never> & Partial<CSSStyleDeclaration>
 }

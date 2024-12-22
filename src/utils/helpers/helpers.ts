@@ -171,11 +171,15 @@ export function mapSVGElements(svgString: string, options: MapSVGElementsOptions
                     element.removeAttribute('style')
                 }
 
-                const item = {
+                const item: SVGDataItem = {
                     id,
                     path,
                     name: translateHTMLTag(element.tagName),
-                    children: element.hasChildNodes() ? mapHierarchy(Array.from(element.children), [...path, id]) : []
+                    children: element.hasChildNodes() ? mapHierarchy(Array.from(element.children), [...path, id]) : [],
+                    properties: {
+                        fill: color,
+                        stroke: strokeColor
+                    }
                 }
 
                 flatMap[id] = item

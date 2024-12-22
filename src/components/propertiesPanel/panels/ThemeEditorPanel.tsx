@@ -1,7 +1,7 @@
 import { useCallback } from "react"
 import { isEmpty, throttle } from "lodash"
 import { useEditorState, useEditorStateReducer } from "@/utils/hooks"
-import ThemeColorPicker from "@/components/propertiesPanel/panels/ThemeColorPicker"
+import { ColorPicker } from "@/components/colorPicker"
 import Panel from "./Panel"
 
 export default function ThemeEditorPanel() {
@@ -18,9 +18,9 @@ export default function ThemeEditorPanel() {
         <>
             <Panel
                 title="Theme Editor"
-                className="theme-editor"
+                className="color-editor"
             >
-                <ThemeColorPicker
+                <ColorPicker
                     id="fill"
                     colors={fill!}
                     title="Fill Colors"
@@ -29,7 +29,7 @@ export default function ThemeEditorPanel() {
                     }}
                 />
 
-                <ThemeColorPicker
+                <ColorPicker
                     id="stroke"
                     colors={stroke!}
                     title="Stroke Colors"

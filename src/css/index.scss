@@ -275,7 +275,7 @@ body {
     }
 }
 
-.theme-editor {
+.color-editor {
     .ant-space {
         width: 100%;
     }
@@ -285,7 +285,18 @@ body {
         width: 100%;
     }
 
-    .ant-color-picker-color-block {
+    .ant-color-picker-color-block, .ant-color-picker-clear {
         width: 50px;
+        &::after {
+            display: none;
+        }
+    }
+
+    .ant-typography-copy {
+        color: gray;
+
+        &:hover {
+            color: variables.$primary-color !important;
+        }
     }
 }

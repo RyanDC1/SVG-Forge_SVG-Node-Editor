@@ -7,6 +7,7 @@ import {
   ThemeEditorPanel
 } from '@/components/propertiesPanel/panels'
 import { useMemo } from 'react'
+import ColorEditorPanel from './panels/ColorEditorPanel'
 
 export default function PropertiesPanel() {
 
@@ -33,38 +34,46 @@ export default function PropertiesPanel() {
   }, [selectedItems])
 
   return (
-    <Space
-      direction='vertical'
-      className='properties-panel'
-      split={<Divider />}
-      size={0}
-    >
+    <>
       <Typography.Text strong>
         <Space size={4}>
           {selectedItem?.name}
           Properties
         </Space>
       </Typography.Text>
+      <Space
+        direction='vertical'
+        className='properties-panel'
+        split={<Divider />}
+        size={0}
+      >
 
-      <>
-        {
-          selectedItem && !isEmpty(selectedNodes) &&
-          <IdPanel
-            defaultValue={selectedItem.id}
-            key={selectedItem.id}
-          />
-        }
+        <>
+          {
+            selectedItem && !isEmpty(selectedNodes) &&
+            <>
+              <IdPanel
+                defaultValue={selectedItem.id}
+                key={selectedItem.id}
+              />
 
-        {
-          (selectedItem?.name === 'SVG' || isEmpty(selectedNodes)) &&
-          <ThemeEditorPanel />
-        }
+              <ColorEditorPanel
+                showFill={selectedItem?.name !== 'SVG'}
+              />
+            </>
+          }
 
-        {
-          selectedItem?.name !== 'SVG' && !isEmpty(selectedNodes) &&
-          <ActionPanel />
-        }
-      </>
-    </Space>
+          {
+            (selectedItem?.name === 'SVG' || isEmpty(selectedNodes)) &&
+            <ThemeEditorPanel />
+          }
+
+          {
+            selectedItem?.name !== 'SVG' && !isEmpty(selectedNodes) &&
+            <ActionPanel />
+          }
+        </>
+      </Space>
+    </>
   )
 }

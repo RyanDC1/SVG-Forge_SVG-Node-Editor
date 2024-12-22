@@ -1,4 +1,4 @@
-import { ColorPicker, Space, Typography } from "antd"
+import { ColorPicker as AntColorPicker, Space, Typography } from "antd"
 import Color from "color"
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
     onChange: (color: string, prevColor: string) => void
 }
 
-export default function ThemeColorPicker(props: Props) {
+export default function ColorPicker(props: Props) {
 
     const { id, title, colors, onChange } = props
 
@@ -18,11 +18,18 @@ export default function ThemeColorPicker(props: Props) {
             <Space direction='vertical'>
                 {
                     colors.map((color, index) => (
-                        <ColorPicker
+                        <AntColorPicker
                             key={`${id}-${index}`}
                             value={color}
                             showText={(color) => {
-                                return color.toHexString().toUpperCase()
+                                return (
+                                    <Typography.Text 
+                                        type='secondary' 
+                                        copyable
+                                    >
+                                        {color.toHexString().toUpperCase()}
+                                    </Typography.Text>
+                                )
                             }}
                             disabledFormat
                             format='hex'
