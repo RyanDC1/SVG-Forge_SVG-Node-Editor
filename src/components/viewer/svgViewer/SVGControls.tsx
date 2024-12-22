@@ -117,8 +117,13 @@ export default function SVGControls(props: Props) {
             onPointerUp={onPanStop}
             onPointerLeave={onPanStop}
             onPointerMove={onPan}
-            onClick={() => {
+            onClick={(event) => {
                 controlRef.current.focus()
+                if(event.target === controlRef.current) {
+                    // reset selected nodes when click event
+                    // is outside the container
+                    setSelectedNodes([])
+                }
             }}
             onFocus={() => {
                 isKeyEventsActiveRef.current = true
@@ -278,7 +283,7 @@ export default function SVGControls(props: Props) {
         const target = event.target as Element
 
         if (
-            event.button !== 0,
+            event.button !== 0 ||
             isPanActive.current ||
             target === svgContainerRef.current
         ) {
