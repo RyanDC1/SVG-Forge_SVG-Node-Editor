@@ -1,17 +1,17 @@
 import { NodeAttributePayload, SVGDataItem, SVGFlatMap, SVGNodeTypes, SVGTheme } from "@/types"
 import { v4 as uuidv4 } from 'uuid'
-import { get, isEmpty, startCase } from "lodash"
+import { get, isEmpty, kebabCase, startCase } from "lodash"
 import Color from 'color'
-import { 
-    BezierCurveOutlined, 
-    CircleDashedOutlined, 
-    GroupOutlined, 
-    LineOutlined, 
-    PathOutlined, 
-    PolygonOutlined, 
-    PolylineOutlined, 
-    RectangleOutlined, 
-    SVGOutlined 
+import {
+    BezierCurveOutlined,
+    CircleDashedOutlined,
+    GroupOutlined,
+    LineOutlined,
+    PathOutlined,
+    PolygonOutlined,
+    PolylineOutlined,
+    RectangleOutlined,
+    SVGOutlined
 } from "@/components/icons"
 
 
@@ -85,11 +85,39 @@ export function uuid() {
 /**
  * Modifies element color/fill property from styles and normalizes it to hexadecimal value
  */
-function NormalizeSVGNodeColor(element: HTMLElement, color: string, type: 'fill' | 'stroke') {
+function normalizeSVGNodeColor(element: HTMLElement, color: string, type: 'fill' | 'stroke') {
+    if(color.toLowerCase() === 'none') {
+        element?.style?.removeProperty(type)
+        element.setAttribute(type, 'none')
+        return
+    }
+
     const normalizedColor = Color(color).hexa()
     element?.style?.removeProperty(type)
     element.setAttribute(type, normalizedColor)
     return normalizedColor.toUpperCase()
+}
+
+/**
+ * Transforms inline style to inline attribute values
+ */
+function transformStyleToInlineAttr(element: HTMLElement, property: keyof Partial<CSSStyleDeclaration>): Partial<CSSStyleDeclaration> {
+    const propertyName: string = kebabCase(property as string)
+    const value = element?.style?.getPropertyValue(propertyName)
+    if (value) {
+        (element as HTMLElement)?.style?.removeProperty(propertyName as string)
+        element.setAttribute(propertyName, value)
+
+        return {
+            [property]: element.getAttribute(propertyName)!
+        }
+    }
+
+    return element.hasAttribute(propertyName) ?
+        {
+            [property]: element.getAttribute(propertyName)!
+        } : {}
+
 }
 
 interface MapSVGElementsOptions {
@@ -105,6 +133,7 @@ export function mapSVGElements(svgString: string, options: MapSVGElementsOptions
         fill: [],
         stroke: []
     }
+
     const { customProperties } = options
 
     try {
@@ -116,10 +145,12 @@ export function mapSVGElements(svgString: string, options: MapSVGElementsOptions
         const mapHierarchy = (elements: Element[], path: string[] = []): SVGDataItem[] => {
             return elements.map((element) => {
 
-                if(customProperties?.ids && customProperties.ids.includes(element.id)) {
+                let definedProperties: Partial<CSSStyleDeclaration> = {}
+
+                if (customProperties?.ids && customProperties.ids.includes(element.id)) {
                     // Add custom properties and update svg element while mapping
-                    for(const [name, value] of Object.entries(customProperties.properties)) {
-                        element.setAttribute(name, value)
+                    for (const [name, value] of Object.entries(customProperties.properties)) {
+                        element.setAttribute(kebabCase(name), value)
                     }
                 }
 
@@ -139,46 +170,64 @@ export function mapSVGElements(svgString: string, options: MapSVGElementsOptions
 
                 // fill colors
                 const color = (element as HTMLElement)?.style?.fill || element.getAttribute('fill')
-                if(color && color.toLowerCase() !== 'none') {
+                if (color) {
                     try {
-                        const normalizedColor = NormalizeSVGNodeColor(element as HTMLElement, color, 'fill')
-                        if(!theme.fill.includes(normalizedColor)) {
+                        const normalizedColor = normalizeSVGNodeColor(element as HTMLElement, color, 'fill')
+                        if (normalizedColor && !theme.fill.includes(normalizedColor)) {
                             theme.fill.push(normalizedColor)
                         }
                     }
-                    catch(error) {
+                    catch (error) {
                         console.log(error)
                     }
                 }
 
                 // stroke colors
                 const strokeColor = (element as HTMLElement)?.style?.stroke || element.getAttribute('stroke')
-                if(strokeColor && strokeColor.toLowerCase() !== 'none') {
+                if (strokeColor) {
                     try {
-                        const normalizedColor = NormalizeSVGNodeColor(element as HTMLElement, strokeColor, 'stroke')
-                        if(!theme.stroke.includes(normalizedColor)) {
+                        const normalizedColor = normalizeSVGNodeColor(element as HTMLElement, strokeColor, 'stroke')
+                        if (normalizedColor && !theme.stroke.includes(normalizedColor)) {
                             theme.stroke.push(normalizedColor)
                         }
                     }
-                    catch(error) {
+                    catch (error) {
                         console.log(error)
                     }
                 }
 
                 // #endregion color normalization
 
-                if(isEmpty(element.getAttribute('style'))) {
+                // #region convert style to inline attribute
+                const attributes: (keyof CSSStyleDeclaration)[] = [
+                    'strokeWidth',
+                    'strokeOpacity'
+                ]
+
+                attributes.forEach((attribute) => {
+                    const attributeData = transformStyleToInlineAttr(element as HTMLElement, attribute)
+                    definedProperties = {
+                        ...definedProperties,
+                        ...attributeData
+                    }
+                })
+                // #endregion convert style to inline attribute
+
+
+                if (isEmpty(element.getAttribute('style'))) {
                     element.removeAttribute('style')
                 }
 
                 const item: SVGDataItem = {
                     id,
                     path,
+                    className: element.getAttribute('class'),
                     name: translateHTMLTag(element.tagName),
                     children: element.hasChildNodes() ? mapHierarchy(Array.from(element.children), [...path, id]) : [],
-                    properties: {
+                    attributes: {
                         fill: color,
-                        stroke: strokeColor
+                        stroke: strokeColor,
+                        ...definedProperties
                     }
                 }
 
@@ -215,10 +264,10 @@ export function deleteSVGNode(svgString: string, ids: string[]) {
 
     const htmlDocument = document.implementation.createHTMLDocument()
     htmlDocument.body.append(svgElement)
-    
+
     ids.forEach(id => {
         const node = htmlDocument.getElementById(id)
-        if(node && node.tagName.toLowerCase() !== 'svg') {
+        if (node && node.tagName.toLowerCase() !== 'svg') {
             node.remove()
         }
     })
@@ -236,13 +285,13 @@ export function deleteSVGNode(svgString: string, ids: string[]) {
 export function getKeyCombination(event: KeyboardEvent) {
     const combination: string[] = []
 
-    if(event.ctrlKey) {
+    if (event.ctrlKey) {
         combination.push('ctrl')
     }
-    if(event.altKey) {
+    if (event.altKey) {
         combination.push('alt')
     }
-    if(event.shiftKey) {
+    if (event.shiftKey) {
         combination.push('shift')
     }
 

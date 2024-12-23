@@ -20,7 +20,7 @@ export default function ColorPicker(props: Props) {
                     colors.map((color, index) => (
                         <AntColorPicker
                             key={`${id}-${index}`}
-                            value={color}
+                            value={color != 'none' ? color : '#FFFFFFF'}
                             showText={(color) => {
                                 return (
                                     <Typography.Text 

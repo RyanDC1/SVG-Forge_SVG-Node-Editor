@@ -3,7 +3,9 @@ import { filter, isEmpty } from 'lodash'
 import { useEditorState } from '@/utils/hooks'
 import {
   ActionPanel,
+  ClassNamePanel,
   IdPanel,
+  StrokeProperties,
   ThemeEditorPanel
 } from '@/components/propertiesPanel/panels'
 import { useMemo } from 'react'
@@ -35,12 +37,13 @@ export default function PropertiesPanel() {
 
   return (
     <>
-      <Typography.Text strong>
+      <Typography.Text strong className='properties-panel-title'>
         <Space size={4}>
           {selectedItem?.name}
           Properties
         </Space>
       </Typography.Text>
+
       <Space
         direction='vertical'
         className='properties-panel'
@@ -57,9 +60,13 @@ export default function PropertiesPanel() {
                 key={selectedItem.id}
               />
 
+              <ClassNamePanel />
+
               <ColorEditorPanel
                 showFill={selectedItem?.name !== 'SVG'}
               />
+
+              <StrokeProperties/>
             </>
           }
 

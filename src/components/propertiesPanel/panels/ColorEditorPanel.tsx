@@ -13,18 +13,16 @@ export default function ColorEditorPanel(props: Props) {
 
     const { showFill = true, showStroke = true } = props
 
-    const selectedNodes = useEditorState(state => state.editorStateReducer.selectedNodes)
-    const flatMap = useEditorState(state => state.editorStateReducer.svgData?.flatMap)
+    const selectedNode = useEditorState(state => state.editorStateReducer.selectedNodes?.[0])
+    const fill = useEditorState(state => state.editorStateReducer.svgData?.flatMap?.[selectedNode]?.attributes?.fill)
+    const stroke = useEditorState(state => state.editorStateReducer.svgData?.flatMap?.[selectedNode]?.attributes?.stroke)
 
     const { setNodeAttribute } = useEditorStateReducer()
-
-    const selectedItem = flatMap?.[selectedNodes[0]]
-    const { fill, stroke } = selectedItem?.properties || {}
 
     const throttledSetNodeAttribute = useCallback(throttle(setNodeAttribute, 160), [])
 
     return (
-        selectedItem &&
+        selectedNode &&
         <Panel
             title="Colors"
             className="color-editor"
@@ -56,7 +54,7 @@ export default function ColorEditorPanel(props: Props) {
 
     function updateColor(color: string, type: 'fill' | 'stroke') {
         throttledSetNodeAttribute({
-            ids: [selectedItem!.id],
+            ids: [selectedNode],
             properties: {
                 [type]: color
             }

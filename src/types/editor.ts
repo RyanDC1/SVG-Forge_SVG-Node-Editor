@@ -36,17 +36,20 @@ export enum MonacoTheme {
 export interface SVGDataItem {
     id: string,
     name: string,
+    className?: string | null,
     /**
      * ids of each item of path traversed from root node
      */
-    path: string[]
+    path: string[],
     children: SVGDataItem[],
-    properties: SVGDataItemProperties
+    attributes: SVGDataItemProperties
 }
 
 interface SVGDataItemProperties {
     fill?: string | null,
-    stroke?: string | null
+    stroke?: string | null,
+    strokeWidth?: string | null,
+    strokeOpacity?: string | null
 }
 
 export type SVGFlatMap = Record<string, SVGDataItem>
@@ -56,7 +59,12 @@ export interface SVGTheme {
     stroke: string[]
 }
 
+interface HTMLAttributes {
+    id?: string,
+    class?: string
+}
+
 export interface NodeAttributePayload {
     ids: string[],
-    properties: React.HTMLAttributes<never> & Partial<CSSStyleDeclaration>
+    properties: HTMLAttributes & Partial<CSSStyleDeclaration>
 }

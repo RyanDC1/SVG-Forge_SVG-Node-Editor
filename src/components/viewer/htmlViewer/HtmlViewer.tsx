@@ -58,7 +58,7 @@ const HtmlViewer = forwardRef<HtmlViewerRef, unknown>((_props, ref) => {
                 editorRef.current.setSelection(range)
                 const selection = editorRef.current.getSelection()
                 if(selection) {
-                    editorRef.current.revealRangeAtTop(range)
+                    editorRef.current.revealRangeInCenter(range)
                 }
             }
         }
@@ -87,7 +87,6 @@ const HtmlViewer = forwardRef<HtmlViewerRef, unknown>((_props, ref) => {
                 }}
                 onMount={(editor) => {
                     editorRef.current = editor
-                    console.log(editor)
                     onEditorLoad(editor)
                 }}
             />

@@ -1,3 +1,5 @@
 export { default as ActionPanel } from './ActionPanel'
 export { default as IdPanel } from './IdPanel'
 export { default as ThemeEditorPanel } from './ThemeEditorPanel'
+export { default as ClassNamePanel } from './ClassNamePanel'
+export { default as StrokeProperties } from './StrokeProperties'

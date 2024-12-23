@@ -155,10 +155,18 @@ export default function NodeHierarchy(props: Props) {
                     setExpandedKeys(expandedKeys)
                 }}
                 onSelect={(_keys, info) => {
-                    if (!expandedKeys.includes(info.node.key)) {
-                        setExpandedKeys(keys => [...keys, info.node.key])
-                    } else {
-                        setExpandedKeys(keys => keys.filter(key => key != info.node.key))
+                    const selectedKey: string = info.node.key as string
+                    if(checkedNodes.length === 1 && checkedNodes.includes(selectedKey)) {
+                        setSelectedNodes([])
+                        locallyCheckedKeysRef.current = []
+                    }
+                    else {
+                        setSelectedNodes([selectedKey] as string[])
+                        locallyCheckedKeysRef.current = [selectedKey]
+                    }
+
+                    if (!expandedKeys.includes(selectedKey)) {
+                        setExpandedKeys(keys => [...keys, selectedKey])
                     }
                 }}
                 onCheck={(keys) => {
