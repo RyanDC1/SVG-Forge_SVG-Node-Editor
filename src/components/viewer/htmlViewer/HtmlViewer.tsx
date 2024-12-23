@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Button, ConfigProvider, Flex, Modal, Space, Spin, theme as antTheme } from "antd";
 import { CloseCircleFilled, CloseOutlined, LoadingOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 import Editor from '@monaco-editor/react';
@@ -7,6 +7,7 @@ import { useBrowserStore, useEditorState, useEditorStateReducer } from "@/utils/
 import { localStoreKeys } from "@/utils/constants";
 import { MonacoTheme } from "@/types";
 import { parseSVG } from "@/utils/helpers";
+import { last } from "lodash";
 
 interface Error {
     line: number,
@@ -22,6 +23,8 @@ interface HtmlViewerRef {
 const HtmlViewer = forwardRef<HtmlViewerRef, unknown>((_props, ref) => {
 
     const svg = useEditorState(state => state.editorStateReducer.svg)
+    const selectedIds = useEditorState(state => state.editorStateReducer.selectedNodes)
+
     const { setEditorState } = useEditorStateReducer()
     const { getFromStore, addToStore } = useBrowserStore()
 
@@ -42,6 +45,24 @@ const HtmlViewer = forwardRef<HtmlViewerRef, unknown>((_props, ref) => {
             redo: () => editorRef.current.trigger('keyboard', 'redo', null)
         }
     ), [])
+
+    useEffect(() => {
+        // find and set selection in editor
+        if (selectedIds.length > 0 && editorRef.current) {
+            const searchTerm = `id="${last(selectedIds)}"`
+            const model = editorRef.current.getModel()
+
+            if (model) {
+                const range = model.findMatches(searchTerm, true, false, true, null, true)[0].range
+
+                editorRef.current.setSelection(range)
+                const selection = editorRef.current.getSelection()
+                if(selection) {
+                    editorRef.current.revealRangeAtTop(range)
+                }
+            }
+        }
+    }, [selectedIds])
 
     return (
         <div className="html-viewer-container">
@@ -66,6 +87,7 @@ const HtmlViewer = forwardRef<HtmlViewerRef, unknown>((_props, ref) => {
                 }}
                 onMount={(editor) => {
                     editorRef.current = editor
+                    console.log(editor)
                     onEditorLoad(editor)
                 }}
             />
