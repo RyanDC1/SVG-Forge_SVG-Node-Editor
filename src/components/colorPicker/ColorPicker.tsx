@@ -1,5 +1,6 @@
 import { ColorPicker as AntColorPicker, Space, Typography } from "antd"
 import Color from "color"
+import { isEmpty } from "lodash"
 
 interface Props {
     id: string,
@@ -13,6 +14,7 @@ export default function ColorPicker(props: Props) {
     const { id, title, colors, onChange } = props
 
     return (
+        !isEmpty(colors) &&
         <Space direction='vertical'>
             <Typography.Text type='secondary'>{title}</Typography.Text>
             <Space direction='vertical'>
@@ -20,11 +22,12 @@ export default function ColorPicker(props: Props) {
                     colors.map((color, index) => (
                         <AntColorPicker
                             key={`${id}-${index}`}
-                            value={color != 'none' ? color : '#FFFFFFF'}
+                            value={color != 'none' ? color : undefined}
+                            allowClear
                             showText={(color) => {
                                 return (
-                                    <Typography.Text 
-                                        type='secondary' 
+                                    <Typography.Text
+                                        type='secondary'
                                         copyable
                                     >
                                         {color.toHexString().toUpperCase()}
@@ -33,9 +36,14 @@ export default function ColorPicker(props: Props) {
                             }}
                             disabledFormat
                             format='hex'
-                            onChange={(_value, rgb) => {
-                                const newColor = Color(rgb).hexa()
-                                onChange(newColor, color)
+                            onChange={(value, rgb) => {
+                                if(!value.cleared) {
+                                    const newColor = Color(rgb).hexa()
+                                    onChange(newColor, color)
+                                }
+                            }}
+                            onClear={() => {
+                                onChange('', color)
                             }}
                         />
                     ))

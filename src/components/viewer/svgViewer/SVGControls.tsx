@@ -202,6 +202,8 @@ export default function SVGControls(props: Props) {
                 clearTimeout(SCALE_NOTIFICATION_TIMEOUT)
             }
 
+            hideOverlay()
+
             SCALE_NOTIFICATION_TIMEOUT = setTimeout(() => {
                 message.destroy(SCALE_NOTIFICATION_KEY)
             }, 1500);
@@ -209,6 +211,10 @@ export default function SVGControls(props: Props) {
     }
 
     function scaleSVGOnScroll(event: React.WheelEvent<HTMLDivElement>) {
+        if(event.ctrlKey) {
+            return
+        }
+
         const currentScale = getSVGScale()
         const scaleFactor = event.deltaY < 0 ? (1 + SCALE_STEP) : (1 - SCALE_STEP);
 

@@ -2,7 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "re
 import { Button, ConfigProvider, Flex, Modal, Space, Spin, theme as antTheme } from "antd";
 import { CloseCircleFilled, CloseOutlined, LoadingOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 import Editor from '@monaco-editor/react';
-import { editor, Range } from "monaco-editor";
+import { editor, Position, Range } from "monaco-editor";
 import { useBrowserStore, useEditorState, useEditorStateReducer } from "@/utils/hooks"
 import { localStoreKeys } from "@/utils/constants";
 import { MonacoTheme } from "@/types";
@@ -38,6 +38,7 @@ const HtmlViewer = forwardRef<HtmlViewerRef, unknown>((_props, ref) => {
     const editorRef = useRef<editor.IStandaloneCodeEditor>(null!)
     const errorContentRef = useRef<HTMLElement>(null!)
     const xmlErrorCodeRef = useRef<editor.IStandaloneCodeEditor>(null!)
+    const cursorPositionRef = useRef<Position | null>(null)
 
     useImperativeHandle(ref, () => (
         {
@@ -57,12 +58,23 @@ const HtmlViewer = forwardRef<HtmlViewerRef, unknown>((_props, ref) => {
 
                 editorRef.current.setSelection(range)
                 const selection = editorRef.current.getSelection()
-                if(selection) {
+                if (selection) {
                     editorRef.current.revealRangeInCenter(range)
                 }
             }
         }
     }, [selectedIds])
+
+    useEffect(() => {
+        if(editorRef.current) {
+            if(cursorPositionRef.current && editorRef.current.hasWidgetFocus()) {
+                editorRef.current.focus()
+                editorRef.current.setPosition(cursorPositionRef.current)
+            }
+            updateCursorPosition()
+        }
+    }, [svg])
+
 
     return (
         <div className="html-viewer-container">
@@ -83,6 +95,7 @@ const HtmlViewer = forwardRef<HtmlViewerRef, unknown>((_props, ref) => {
                     scrollBeyondLastLine: false
                 }}
                 onChange={(svgString) => {
+                    updateCursorPosition()
                     validateAndSave(svgString!)
                 }}
                 onMount={(editor) => {
@@ -213,6 +226,12 @@ const HtmlViewer = forwardRef<HtmlViewerRef, unknown>((_props, ref) => {
         setTimeout(function () {
             editor.getAction?.('editor.action.formatDocument')?.run();
         }, 0);
+    }
+
+    function updateCursorPosition() {
+        if(editorRef.current) {
+            cursorPositionRef.current = editorRef.current.getPosition()
+        }
     }
 
     async function validateAndSave(svgData: string) {
