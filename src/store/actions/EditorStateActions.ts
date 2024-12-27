@@ -37,4 +37,4 @@ export const setNodeAttribute = createDispatchAction<NodeAttributePayload>(setNo
 
 export const deleteNode = createDispatchAction<string[]>(deleteNodeReducer as ThunkAction)
 
-export const resetEditorState = createDispatchAction<never>(clearEditorStateReducer as ThunkAction)
+export const resetEditorState = createDispatchAction<void>(clearEditorStateReducer as ThunkAction)
