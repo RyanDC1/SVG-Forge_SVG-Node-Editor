@@ -194,7 +194,7 @@ export default function SVGControls(props: Props) {
             SVGContainer.style.setProperty('scale', String(scale))
 
             message.open({
-                content: `Scale: ${Math.round(scale * 10)}%`,
+                content: `Zoom: ${Math.round(scale * 10)}%`,
                 key: SCALE_NOTIFICATION_KEY
             })
 

@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import { isEmpty } from 'lodash'
 
 type Props = {
     /**
@@ -17,13 +16,14 @@ export default function useLocalStore(props?: Props) {
 
     const store: Storage = useMemo(() => defaultStore === 'local' ? localStorage : sessionStorage, [])
 
-    const getFromStore = <T>(key: string): T | undefined | void => {
+    const getFromStore = <T>(key: string): T | undefined => {
         try {
             const data = store.getItem(key)
             return data ? JSON.parse(data) : undefined
         }
         catch (error) {
-            console.error("An error occurred while fetching from local store: ", error)
+            console.error("An error occurred while fetching from store: ", error)
+            return undefined
         }
     }
 
@@ -31,15 +31,15 @@ export default function useLocalStore(props?: Props) {
         try {
             store.setItem(key, JSON.stringify(value))
         } catch (error) {
-            console.error("An error occurred while adding to local store: ", error)
+            console.error("An error occurred while adding to store: ", error)
         }
     }
 
     const clearStore = (keys?: string[]) => {
-        if (isEmpty(keys)) {
+        if (keys == null) {
             store.clear()
         }
-        else {
+        else if(Array.isArray(keys)) {
             keys!.forEach(key => {
                 store.removeItem(key)
             });
