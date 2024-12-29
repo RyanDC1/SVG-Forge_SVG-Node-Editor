@@ -213,7 +213,6 @@ export function mapSVGElements(svgString: string, options: MapSVGElementsOptions
                 })
                 // #endregion convert style to inline attribute
 
-
                 if (isEmpty(element.getAttribute('style'))) {
                     element.removeAttribute('style')
                 }

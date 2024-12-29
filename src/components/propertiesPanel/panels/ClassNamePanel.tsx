@@ -18,28 +18,32 @@ export default function ClassNamePanel() {
                 ref={inputRef}
                 placeholder="Add Class"
                 variant='filled'
-                value={className as string}
+                defaultValue={className as string}
                 onFocus={() => {
                     const value = inputRef.current.input?.value
                     if(value) {
                         inputRef.current.setSelectionRange(0, String(value).length)
                     }
                 }}
-                onChange={updateClassName}
+                onKeyDown={(event) => {
+                    if(event.key === 'Enter') {
+                        inputRef.current.blur()
+                        updateClassName()
+                    }
+                }}
+                onBlur={updateClassName}
             />
         </Panel>
     )
 
     function updateClassName() {
-        const value = inputRef.current.input?.value
+        const value = inputRef.current.input?.value ?? ''
 
-        if(value) {
-            setNodeAttribute({
-                ids: [selectedNode],
-                properties: {
-                    class: value
-                }
-            })
-        }
+        setNodeAttribute({
+            ids: [selectedNode],
+            properties: {
+                class: value
+            }
+        })
     }
 }

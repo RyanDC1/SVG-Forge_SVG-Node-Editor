@@ -60,7 +60,9 @@ export default function PropertiesPanel() {
                 key={selectedItem.id}
               />
 
-              <ClassNamePanel />
+              <ClassNamePanel 
+                key={selectedItem.className}
+              />
 
               <ColorEditorPanel
                 showFill={selectedItem?.name !== 'SVG'}
