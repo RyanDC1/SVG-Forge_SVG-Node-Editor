@@ -1,7 +1,7 @@
 import { useCallback } from "react"
 import { isEmpty, throttle } from "lodash"
 import { useEditorState, useEditorStateReducer } from "@/utils/hooks"
-import { ColorPicker } from "@/components/colorPicker"
+import { ColorPickerList } from "@/components/colorPicker"
 import Panel from "./Panel"
 
 export default function ThemeEditorPanel() {
@@ -19,7 +19,7 @@ export default function ThemeEditorPanel() {
                 title="Theme Editor"
                 className="color-editor"
             >
-                <ColorPicker
+                <ColorPickerList
                     id="fill"
                     colors={Object.keys(fill ?? {})}
                     title="Fill Colors"
@@ -28,7 +28,7 @@ export default function ThemeEditorPanel() {
                     }}
                 />
 
-                <ColorPicker
+                <ColorPickerList
                     id="stroke"
                     colors={Object.keys(stroke ?? {})}
                     title="Stroke Colors"
@@ -40,27 +40,24 @@ export default function ThemeEditorPanel() {
         </>
     )
 
-    function updateSVGFillColors(color: string, prevColor: string) {
-        const ids = fill?.[prevColor] ?? []
-        if(ids.length > 0) {
+    function updateSVGColor(ids: string[], color: string, type: 'stroke' | 'fill') {
+        if (ids.length > 0) {
             throttledSetAttributes({
                 ids,
                 properties: {
-                    fill: color
+                    [type]: color
                 }
             })
         }
     }
-    
+
+    function updateSVGFillColors(color: string, prevColor: string) {
+        const ids = fill?.[prevColor] ?? []
+        updateSVGColor(ids, color, 'fill')
+    }
+
     function updateSVGStrokeColors(color: string, prevColor: string) {
         const ids = stroke?.[prevColor] ?? []
-        if(ids.length > 0) {
-            throttledSetAttributes({
-                ids,
-                properties: {
-                    stroke: color
-                }
-            })
-        }
+        updateSVGColor(ids, color, 'stroke')
     }
 }
