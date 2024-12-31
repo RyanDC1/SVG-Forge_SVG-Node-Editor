@@ -55,8 +55,8 @@ interface SVGDataItemProperties {
 export type SVGFlatMap = Record<string, SVGDataItem>
 
 export interface SVGTheme {
-    fill: string[],
-    stroke: string[]
+    fill: Record<string, string[]>,
+    stroke: Record<string, string[]>
 }
 
 interface HTMLAttributes {

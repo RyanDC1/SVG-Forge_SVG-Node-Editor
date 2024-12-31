@@ -130,8 +130,8 @@ interface MapSVGElementsOptions {
 export function mapSVGElements(svgString: string, options: MapSVGElementsOptions = {}) {
     const flatMap: SVGFlatMap = {}
     const theme: SVGTheme = {
-        fill: [],
-        stroke: []
+        fill: {},
+        stroke: {}
     }
 
     const { customProperties } = options
@@ -173,8 +173,11 @@ export function mapSVGElements(svgString: string, options: MapSVGElementsOptions
                 if (color) {
                     try {
                         const normalizedColor = normalizeSVGNodeColor(element as HTMLElement, color, 'fill')
-                        if (normalizedColor && !theme.fill.includes(normalizedColor)) {
-                            theme.fill.push(normalizedColor)
+                        if (normalizedColor) {
+                            theme.fill[normalizedColor] = [
+                                ...(theme.fill[normalizedColor] ?? []), 
+                                element.getAttribute('id')!
+                            ]
                         }
                     }
                     catch (error) {
@@ -187,8 +190,11 @@ export function mapSVGElements(svgString: string, options: MapSVGElementsOptions
                 if (strokeColor) {
                     try {
                         const normalizedColor = normalizeSVGNodeColor(element as HTMLElement, strokeColor, 'stroke')
-                        if (normalizedColor && !theme.stroke.includes(normalizedColor)) {
-                            theme.stroke.push(normalizedColor)
+                        if (normalizedColor) {
+                            theme.stroke[normalizedColor] = [
+                                ...(theme.stroke[normalizedColor] ?? []), 
+                                element.getAttribute('id')!
+                            ]
                         }
                     }
                     catch (error) {
