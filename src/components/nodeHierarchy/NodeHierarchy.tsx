@@ -51,7 +51,7 @@ const getTreeData = (svgData: SVGDataItem[], flatMap: SVGFlatMap, searchTerm: st
 
         return filteredData.map(item => {
             const Icon = getSVGNodeIcon(item.name)
-            
+
             return {
                 key: item.id,
                 children: item.children?.length > 0 ? mapTreeData(item.children) : [],
@@ -95,20 +95,20 @@ export default function NodeHierarchy(props: Props) {
     useEffect(() => {
         const lastCheckedId = last(checkedNodes)
 
-        if(lastCheckedId) {
+        if (lastCheckedId) {
             const selectedNode = flatMap?.[lastCheckedId]
 
-            if(selectedNode) {
+            if (selectedNode) {
                 const path = [...selectedNode.path, selectedNode.id]
                 setExpandedKeys((keys) => uniq([...keys, ...path]))
             }
 
-            if(!locallyCheckedKeysRef.current.includes(lastCheckedId)) {
+            if (!locallyCheckedKeysRef.current.includes(lastCheckedId)) {
                 // scroll to checkedNode only if it was checked externally and
                 // not when it was checked locally using the tree component
                 setTimeout(() => {
                     // allow time for nodes to expand
-                    treeRef.current.scrollTo({ 
+                    treeRef.current.scrollTo({
                         key: lastCheckedId,
                         align: 'top'
                     })
@@ -156,7 +156,7 @@ export default function NodeHierarchy(props: Props) {
                 }}
                 onSelect={(_keys, info) => {
                     const selectedKey: string = info.node.key as string
-                    if(checkedNodes.length === 1 && checkedNodes.includes(selectedKey)) {
+                    if (checkedNodes.length === 1 && checkedNodes.includes(selectedKey)) {
                         setSelectedNodes([])
                         locallyCheckedKeysRef.current = []
                     }
@@ -169,9 +169,18 @@ export default function NodeHierarchy(props: Props) {
                         setExpandedKeys(keys => [...keys, selectedKey])
                     }
                 }}
-                onCheck={(keys) => {
-                    setSelectedNodes(keys as string[])
-                    locallyCheckedKeysRef.current = keys as string[]
+                onCheck={(keys, info) => {
+                    if (isEmpty(searchTerm)) {
+                        setSelectedNodes(keys as string[])
+                        locallyCheckedKeysRef.current = keys as string[]
+                    } else {
+                        const checkedKeys = checkedNodes.includes(info.node.key as string) ?
+                            checkedNodes.filter(key => key !== info.node.key)
+                            :
+                            [...checkedNodes, info.node.key] as string[]
+                        setSelectedNodes(checkedKeys)
+                        locallyCheckedKeysRef.current = checkedKeys
+                    }
                 }}
                 onMouseEnter={(info) => {
                     setPreviewNode(info.node.key as string)
