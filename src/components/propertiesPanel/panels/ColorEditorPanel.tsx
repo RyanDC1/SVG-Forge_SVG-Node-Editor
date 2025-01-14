@@ -30,9 +30,8 @@ export default function ColorEditorPanel(props: Props) {
             {
                 showFill &&
                 <ColorPicker
-                    id="fill"
                     title="Fill Color"
-                    colors={[fill!]}
+                    color={fill!}
                     onChange={(color) => {
                         updateColor(color, 'fill')
                     }}
@@ -41,9 +40,8 @@ export default function ColorEditorPanel(props: Props) {
             {
                 showStroke &&
                 <ColorPicker
-                    id="stroke"
                     title="Stroke Color"
-                    colors={[stroke!]}
+                    color={stroke!}
                     onChange={(color) => {
                         updateColor(color, 'stroke')
                     }}
